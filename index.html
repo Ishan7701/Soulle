@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sol Coin - Advanced Cloud Mining</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">⛏️</div>
+                <h1>Sol Coin</h1>
+            </div>
+            <div class="user-info">
+                <div class="balance-card">
+                    <h3>BROKER BALANCE</h3>
+                    <div class="balance-amount" id="broker-balance">20.000000 USDT</div>
+                </div>
+                <div class="balance-card">
+                    <h3>FUND BALANCE</h3>
+                    <div class="balance-amount" id="fund-balance">0.000000 USDT</div>
+                </div>
+                <div class="user-id">ID: SOL<span id="user-id">829471</span></div>
+            </div>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="mine">MINE</button>
+            <button class="tab-btn" data-tab="upgrade">UPGRADE</button>
+            <button class="tab-btn" data-tab="team">TEAM</button>
+            <button class="tab-btn" data-tab="withdraw">WITHDRAW</button>
+        </div>
+        
+        <!-- Mining Tab -->
+        <div class="tab-content active" id="mine-tab">
+            <div class="mining-container">
+                <h2>SOL COIN CLOUD MINING</h2>
+                <p>Advanced mining with 30% bonus for Sol Coin</p>
+                
+                <div class="mining-animation" id="mining-animation">
+                    <div class="mining-circle" id="mining-circle">
+                        MINING
+                    </div>
+                </div>
+                
+                <div class="mining-stats">
+                    <div class="stat-card">
+                        <h3>MINED TODAY</h3>
+                        <div class="value" id="mined-today">0.000000 SOL</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>TOTAL MINED</h3>
+                        <div class="value" id="total-mined">0.000000 SOL</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>MINING POWER</h3>
+                        <div class="value" id="mining-power">0 MH/s</div>
+                    </div>
+                </div>
+                
+                <div class="mining-controls">
+                    <button class="btn" id="start-mining">START MINING</button>
+                    <button class="btn" id="claim-rewards" disabled>CLAIM REWARDS</button>
+                </div>
+            </div>
+            
+            <div class="invite-container">
+                <h2>INVITE FRIENDS & EARN 1 USDT</h2>
+                <p>Share your referral code and earn 1 USDT for each friend who joins</p>
+                <div class="referral-code">SOL-<span id="ref-code">829471</span></div>
+                <button class="btn" id="copy-ref">COPY REFERRAL CODE</button>
+            </div>
+        </div>
+        
+        <!-- Upgrade Tab -->
+        <div class="tab-content" id="upgrade-tab">
+            <h2>MINING MACHINES</h2>
+            <p>Purchase mining machines to increase your daily mining output</p>
+            
+            <div class="machines-grid" id="machines-grid">
+                <!-- Mining machines will be inserted here by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Team Tab -->
+        <div class="tab-content" id="team-tab">
+            <div class="invite-container">
+                <h2>TEAM & REFERRALS</h2>
+                <p>Invite friends and earn up to 14% commission on their deposits</p>
+                <div class="referral-code">SOL-<span id="team-ref-code">829471</span></div>
+                <button class="btn" id="copy-team-ref">COPY REFERRAL CODE</button>
+            </div>
+            
+            <div class="team-stats">
+                <div class="team-stat-card">
+                    <h3>DIRECT REFERRALS</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="team-stat-card">
+                    <h3>TOTAL TEAM</h3>
+                    <div class="value">0</div>
+                </div>
+                <div class="team-stat-card">
+                    <h3>TEAM EARNINGS</h3>
+                    <div class="value">0.00 USDT</div>
+                </div>
+                <div class="team-stat-card">
+                    <h3>AVAILABLE REWARDS</h3>
+                    <div class="value">0.00 USDT</div>
+                </div>
+            </div>
+            
+            <div class="rebate-info">
+                <h3>THREE-TIER REBATE SYSTEM</h3>
+                <div class="rebate-grid">
+                    <div class="rebate-card">
+                        <h4>First Tier</h4>
+                        <p class="rebate-percent">10%</p>
+                        <p class="rebate-desc">From direct referrals</p>
+                    </div>
+                    <div class="rebate-card">
+                        <h4>Second Tier</h4>
+                        <p class="rebate-percent">3%</p>
+                        <p class="rebate-desc">From second level referrals</p>
+                    </div>
+                    <div class="rebate-card">
+                        <h4>Third Tier</h4>
+                        <p class="rebate-percent">1%</p>
+                        <p class="rebate-desc">From third level referrals</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Withdraw Tab -->
+        <div class="tab-content" id="withdraw-tab">
+            <div class="withdraw-container">
+                <h2>WITHDRAW FUNDS</h2>
+                
+                <div class="form-group">
+                    <label>Currently Available Assets (USDT)</label>
+                    <div class="withdraw-balance" id="withdraw-balance">0.000000 USDT</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Mainnet</label>
+                    <div class="network-options">
+                        <div class="network-option" data-network="BEP20-USDT">BEP20-USDT</div>
+                        <div class="network-option" data-network="BEP20-USDC">BEP20-USDC</div>
+                        <div class="network-option" data-network="POLYGON-USDT">POLYGON-USDT</div>
+                        <div class="network-option" data-network="POLYGON-USDC">POLYGON-USDC</div>
+                        <div class="network-option" data-network="ETH-USDT">ETH-USDT</div>
+                        <div class="network-option" data-network="ETH-USDC">ETH-USDC</div>
+                        <div class="network-option" data-network="TRC20-USDT">TRC20-USDT</div>
+                        <div class="network-option" data-network="TON">TON</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="withdraw-address">Withdrawal Address</label>
+                    <input type="text" id="withdraw-address" class="form-control" placeholder="Enter your withdrawal address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="withdraw-amount">Withdrawal Amount</label>
+                    <input type="number" id="withdraw-amount" class="form-control" placeholder="0.00">
+                    <button class="btn withdraw-all-btn" id="withdraw-all">ALL</button>
+                </div>
+                
+                <div class="withdraw-info">
+                    <p>Minimum withdrawal amount: <span class="highlight">50.0000 USDT</span></p>
+                    <p>Maximum withdrawal amount: <span class="highlight">999999.00 USDT</span></p>
+                    <p class="fee-info">Fee: <span class="highlight">0 USDT</span></p>
+                    <p>Actual arrival: <span class="highlight" id="actual-arrival">0.000000 USDT</span></p>
+                </div>
+                
+                <button class="btn confirm-withdraw-btn" id="confirm-withdraw">CONFIRM</button>
+                
+                <div class="withdraw-warning">
+                    <p>⚠️ Withdrawals are processed once per day. Please wait 24 hours for confirmation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Deposit Modal -->
+    <div class="modal" id="deposit-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-deposit">&times;</button>
+            <h2>DEPOSIT USDT</h2>
+            
+            <div class="form-group">
+                <label for="deposit-amount">Deposit Amount</label>
+                <input type="number" id="deposit-amount" class="form-control" placeholder="0.00">
+                <p class="deposit-note">Minimum deposit: 10 USDT</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Select Payment Method</label>
+                <div class="network-options">
+                    <div class="network-option" data-method="ETH">ETH</div>
+                    <div class="network-option" data-method="TRX">TRX</div>
+                    <div class="network-option" data-method="BNB">BNB</div>
+                    <div class="network-option" data-method="SOL">SOL</div>
+                    <div class="network-option" data-method="TON">TON</div>
+                    <div class="network-option" data-method="MORPH">MORPH</div>
+                </div>
+            </div>
+            
+            <div id="payment-addresses">
+                <div class="form-group">
+                    <label>Payment Address</label>
+                    <div class="address-box">
+                        <span id="selected-address">Select a payment method to see address</span>
+                        <button class="copy-btn" id="copy-address">COPY</button>
+                    </div>
+                </div>
+                
+                <div class="deposit-warning">
+                    <p>⚠️ Send only the selected cryptocurrency to this address</p>
+                    <p>Deposits will be credited after 3 confirmations (approx. 3 minutes)</p>
+                </div>
+            </div>
+            
+            <button class="btn confirm-deposit-btn" id="confirm-deposit" disabled>CONFIRM DEPOSIT</button>
+        </div>
+    </div>
+    
+    <!-- Purchase Modal -->
+    <div class="modal" id="purchase-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-purchase">&times;</button>
+            <h2>PURCHASE MINING MACHINE</h2>
+            
+            <div id="purchase-details">
+                <!-- Purchase details will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="form-group">
+                <label>Payment Method</label>
+                <div class="payment-method-info">
+                    <p>Broker Balance: <span id="purchase-balance">20.000000 USDT</span></p>
+                </div>
+            </div>
+            
+            <button class="btn confirm-purchase-btn" id="confirm-purchase">CONFIRM PURCHASE</button>
+        </div>
+    </div>
+    
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="spinner"></div>
+        <h2>Processing Transaction</h2>
+        <p>Please wait while we process your request...</p>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <p id="notification-text">Operation completed successfully!</p>
+    </div>
+    
+    <footer>
+        <p>Sol Coin Cloud Mining Platform &copy; 2023. All rights reserved.</p>
+        <p class="footer-sub">FUTUR STICK DIGITAL PAYMENT SYSTEM</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
