@@ -269,3 +269,97 @@ style.textContent = `
 #selectMainnet option:hover { background: gold; color: black; }
 `;
 document.head.appendChild(style);
+
+// JavaScript for Functionality
+let balance = 0;
+let miningInterval = null;
+let isMining = false;
+
+// Load data from localStorage
+function loadData() {
+    const savedBalance = localStorage.getItem('usdtBalance');
+    if (savedBalance) {
+        balance = parseFloat(savedBalance);
+        updateBalance();
+    }
+}
+
+// Save data to localStorage
+function saveData() {
+    localStorage.setItem('usdtBalance', balance.toFixed(2));
+}
+
+function updateBalance() {
+    document.getElementById('balance').textContent = balance.toFixed(2) + ' USDT';
+    saveData();
+}
+
+function deposit() {
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    if (amount > 0) {
+        balance += amount;
+        updateBalance();
+        document.getElementById('depositMsg').textContent = `Deposited ${amount} USDT!`;
+        document.getElementById('depositAmount').value = '';
+        setTimeout(() => { document.getElementById('depositMsg').textContent = ''; }, 3000);
+    } else {
+        document.getElementById('depositMsg').textContent = 'Invalid amount!';
+    }
+}
+
+function startMining() {
+    if (!isMining) {
+        isMining = true;
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('startBtn').textContent = 'Mining Active...';
+        document.getElementById('status').textContent = 'Mining USDT - Advanced Cloud Power!';
+        document.getElementById('miningArea').style.animation = 'pulse 1s infinite';
+
+        // Add more clouds for advanced look
+        const area = document.getElementById('miningArea');
+        for (let i = 0; i < 3; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = `cloud ${i % 2 === 0 ? 'golden-cloud' : 'purple-cloud'}`;
+            cloud.textContent = '☁️';
+            cloud.style.left = Math.random() * 100 + '%';
+            cloud.style.animationDuration = (4 + Math.random() * 4) + 's';
+            area.appendChild(cloud);
+        }
+
+        // Fake mining: earn 0.01 USDT every 5 seconds
+        miningInterval = setInterval(() => {
+            balance += 0.01;
+            updateBalance();
+        }, 5000);
+    }
+}
+
+// Fetch live USDT to BTC price using CoinGecko API
+async function fetchPrice() {
+    try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=btc');
+        const data = await response.json();
+        const price = data.tether.btc;
+        document.getElementById('price').textContent = `1 USDT = ${price.toFixed(8)} BTC`;
+    } catch (error) {
+        document.getElementById('price').textContent = 'Price fetch failed - Check connection';
+    }
+}
+
+// Update price every 30 seconds
+setInterval(fetchPrice, 30000);
+fetchPrice(); // Initial fetch
+
+// Load on start
+loadData();
+
+// Add pulse animation for mining area (if not in CSS)
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+    }
+`;
+document.head.appendChild(style);
