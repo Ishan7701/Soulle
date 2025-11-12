@@ -1,0 +1,658 @@
+:root {
+    --primary: #ff9900;
+    --primary-dark: #e68a00;
+    --secondary: #1a1a1a;
+    --accent: #ffcc00;
+    --text: #ffffff;
+    --background: #0d0d0d;
+    --card-bg: #1a1a1a;
+    --glow: 0 0 15px rgba(255, 153, 0, 0.7);
+    --glow-strong: 0 0 25px rgba(255, 153, 0, 0.9);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 153, 0, 0.3);
+    margin-bottom: 30px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo h1 {
+    font-size: 28px;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: var(--glow);
+}
+
+.logo-icon {
+    font-size: 32px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 10px rgba(255, 153, 0, 0.7));
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.balance-card {
+    background: var(--card-bg);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: var(--glow);
+    border: 1px solid rgba(255, 153, 0, 0.3);
+}
+
+.balance-card h3 {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 5px;
+}
+
+.balance-amount {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.user-id {
+    background: var(--card-bg);
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    border: 1px solid rgba(255, 153, 0, 0.3);
+}
+
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.tab-btn {
+    padding: 12px 25px;
+    background: var(--card-bg);
+    border: none;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 153, 0, 0.2);
+}
+
+.tab-btn:hover {
+    background: rgba(255, 153, 0, 0.1);
+    box-shadow: var(--glow);
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: var(--secondary);
+    font-weight: bold;
+    box-shadow: var(--glow-strong);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.mining-container {
+    text-align: center;
+    padding: 30px;
+    background: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: var(--glow);
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.mining-animation {
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px 0;
+    position: relative;
+}
+
+.mining-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+    position: relative;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 50px var(--primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--secondary);
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.mining-particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow: 0 0 10px var(--accent);
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 153, 0, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 25px rgba(255, 153, 0, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 153, 0, 0); }
+}
+
+.mining-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    width: 30%;
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.3);
+}
+
+.mining-controls {
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 30px;
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    color: var(--secondary);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(255, 153, 0, 0.5);
+}
+
+.btn:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--glow-strong);
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    background: #666;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.invite-container {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: var(--glow);
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.referral-code {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-size: 18px;
+    letter-spacing: 2px;
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    display: inline-block;
+}
+
+.machines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.machine-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.2);
+    border: 1px solid rgba(255, 153, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.machine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glow);
+}
+
+.machine-card h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.machine-details {
+    margin: 15px 0;
+}
+
+.machine-details p {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.machine-details span {
+    color: var(--accent);
+}
+
+.card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+}
+
+.team-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.team-stat-card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.2);
+    border: 1px solid rgba(255, 153, 0, 0.2);
+}
+
+.team-stat-card h3 {
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.team-stat-card .value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.rebate-info {
+    margin-top: 30px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.rebate-info h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.rebate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.rebate-card {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.rebate-card h4 {
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.rebate-percent {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.rebate-desc {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.withdraw-container {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: var(--glow);
+    border: 1px solid rgba(255,153,0,0.3);
+}
+
+.withdraw-balance {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent);
+    text-align: center;
+    margin: 15px 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ccc;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 16px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
+}
+
+.network-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.network-option {
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid rgba(255, 153, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.network-option:hover {
+    background: rgba(255, 153, 0, 0.1);
+}
+
+.network-option.selected {
+    background: rgba(255, 153, 0, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(255, 153, 0, 0.5);
+}
+
+.withdraw-all-btn {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.withdraw-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+}
+
+.highlight {
+    color: var(--accent);
+}
+
+.fee-info {
+    margin-top: 10px;
+}
+
+.confirm-withdraw-btn {
+    width: 100%;
+}
+
+.withdraw-warning {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255,153,0,0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--glow-strong);
+    border: 1px solid var(--primary);
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.deposit-note {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #ccc;
+}
+
+.address-box {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    word-break: break-all;
+    border: 1px solid rgba(255, 153, 0, 0.3);
+    position: relative;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary);
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: var(--secondary);
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.deposit-warning {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+}
+
+.confirm-deposit-btn {
+    width: 100%;
+}
+
+.payment-method-info {
+    padding: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.confirm-purchase-btn {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.loading-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 8px solid rgba(255, 153, 0, 0.3);
+    border-radius: 50%;
+    border-top: 8px solid var(--primary);
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+footer {
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 153, 0, 0.3);
+    color: #999;
+}
+
+.footer-sub {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--glow);
+    border-left: 5px solid var(--primary);
+    z-index: 3000;
+    transform: translateX(150%);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .nav-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        flex: 1 0 45%;
+        margin-bottom: 10px;
+    }
+    
+    .mining-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        width: 100%;
+    }
+    
+    .machines-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .user-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
