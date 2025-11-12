@@ -442,3 +442,159 @@ input[type="number"] {
     text-align: center;
     margin-top: 20px;
 }
+
+/* CSS Styles for Advanced, Smart Look */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+header {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+}
+
+h1 {
+    font-size: 2.5em;
+    margin: 0;
+    text-shadow: 0 0 10px #ffd700;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #ffd700; }
+    to { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700; }
+}
+
+.container {
+    max-width: 800px;
+    width: 90%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin: 20px 0;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+button {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    color: #000;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+input[type="number"] {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ffd700;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 200px;
+    font-size: 1em;
+}
+
+.mining-area {
+    position: relative;
+    height: 300px;
+    background: linear-gradient(to bottom, #0f0f23, #16213e);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.cloud {
+    position: absolute;
+    font-size: 4em;
+    animation: float 6s ease-in-out infinite;
+    opacity: 0.8;
+}
+
+.golden-cloud {
+    color: #ffd700;
+    animation-delay: 0s;
+}
+
+.purple-cloud {
+    color: #8a2be2;
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.mining-status {
+    text-align: center;
+    font-size: 1.5em;
+    margin: 10px 0;
+}
+
+.price-display {
+    text-align: center;
+    font-size: 1.2em;
+    color: #ffd700;
+    margin: 10px 0;
+}
+
+.usdt-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: block;
+    margin: 10px auto;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.balance {
+    font-size: 2em;
+    text-align: center;
+    color: #ffd700;
+    margin: 10px 0;
+}
+
+.deep-smart {
+    font-style: italic;
+    color: #8a2be2;
+    text-align: center;
+    margin-top: 20px;
+}
