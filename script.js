@@ -104,62 +104,30 @@ function loadState() {
     return false;
 }
 
-function clearStorage() {
-    try {
-        localStorage.removeItem('cryptoWellatState');
-        localStorage.removeItem('cryptoWellatLastSave');
-        return true;
-    } catch (error) {
-        console.error('Failed to clear storage:', error);
-        return false;
-    }
-}
-
-function getStorageInfo() {
-    try {
-        const state = localStorage.getItem('cryptoWellatState');
-        const lastSave = localStorage.getItem('cryptoWellatLastSave');
-        return {
-            hasState: !!state,
-            stateSize: state ? state.length : 0,
-            lastSave: lastSave ? new Date(parseInt(lastSave)).toLocaleString() : 'Never',
-            userId: userState.userId
-        };
-    } catch (error) {
-        return { error: error.message };
-    }
-}
-
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
-async function initializeApp() {
+function initializeApp() {
     console.log('🚀 Initializing Crypto Wellat...');
     
     // Load existing state or initialize new user
     const hasExistingState = loadState();
     console.log(hasExistingState ? '📁 Loaded existing state' : '🆕 Created new user state');
     
-    // Show initial loading screen (0.5 seconds only)
-    await simulateLoading(500);
-    
-    // Initialize UI components
+    // Initialize UI components immediately
     setupEventListeners();
     renderMiningMachines();
     updateUI();
     startMiningCycleCheck();
     
-    // Hide loading screen and show main app
-    document.getElementById('initialLoading').classList.remove('active');
-    setTimeout(() => {
-        document.getElementById('mainApp').classList.remove('hidden');
-    }, 300);
+    // Start mining animation immediately
+    startMiningAnimation();
     
     // Send welcome notification for new users
     if (!hasExistingState) {
-        await sendTelegramNotification('welcome', {
+        sendTelegramNotification('welcome', {
             userId: userState.userId,
             brokerBalance: userState.brokerBalance,
             foundBalance: userState.foundBalance
@@ -167,7 +135,14 @@ async function initializeApp() {
     }
     
     console.log('✅ Crypto Wellat initialized successfully');
-    console.log('💾 Storage Info:', getStorageInfo());
+}
+
+function startMiningAnimation() {
+    // Start the mining animation loops immediately
+    const animationContainer = document.getElementById('miningAnimation');
+    if (animationContainer) {
+        updateMiningAnimation('idle');
+    }
 }
 
 function setupEventListeners() {
@@ -320,7 +295,7 @@ async function confirmPurchase() {
         return;
     }
 
-    // Show loading (0.5 seconds)
+    // Show loading
     const btn = modal.querySelector('.action-btn');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
@@ -369,7 +344,7 @@ async function startMining() {
         return;
     }
 
-    // Show loading (0.5 seconds)
+    // Show loading
     const btn = document.getElementById('startMining');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
@@ -409,7 +384,7 @@ async function claimRewards() {
         return;
     }
 
-    // Show loading (0.5 seconds)
+    // Show loading
     const btn = document.getElementById('claimRewards');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
@@ -616,7 +591,7 @@ async function processWithdrawal() {
         return;
     }
 
-    // Show loading (0.5 seconds)
+    // Show loading
     const btn = document.querySelector('.confirm-btn');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
@@ -687,7 +662,7 @@ async function confirmPayment() {
         return;
     }
 
-    // Show loading (0.5 seconds)
+    // Show loading
     const btn = document.querySelector('#depositModal .action-btn.primary');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
@@ -735,7 +710,7 @@ async function upgradeMembership(level) {
         return;
     }
 
-    // Show loading (0.5 seconds)
+    // Show loading
     await simulateLoading(500);
 
     userState.brokerBalance -= cost;
@@ -869,8 +844,3 @@ window.closeModal = closeModal;
 window.closeSuccessMessage = closeSuccessMessage;
 window.upgradeMembership = upgradeMembership;
 window.openDepositModal = openDepositModal;
-
-// Debug functions (remove in production)
-window.getStorageInfo = getStorageInfo;
-window.clearStorage = clearStorage;
-window.saveState = saveState;
