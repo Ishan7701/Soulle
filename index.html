@@ -1,183 +1,242 @@
-<!doctype html>
-<html lang="bn">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sol Coin - Cloud Mining</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sol Coin - Cloud Mining</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <img src="https://via.placeholder.com/44" alt="logo" />
-        <div>
-          <div class="site-name">Sol Coin</div>
-          <div class="site-sub">Avabnb group</div>
+    <!-- Header with Balances -->
+    <header class="header">
+        <div class="balance-container">
+            <div class="balance-item">
+                <span class="balance-label">Broker Balance:</span>
+                <span class="balance-amount" id="brokerBalance">20.00 USDT</span>
+            </div>
+            <div class="balance-item">
+                <span class="balance-label">Found Balance:</span>
+                <span class="balance-amount" id="foundBalance">0.00 USDT</span>
+            </div>
         </div>
-      </div>
-      <div class="lang">English</div>
     </header>
 
-    <main class="main">
-      <!-- User panel -->
-      <section class="panel user-panel">
-        <div class="user-line">
-          <div class="user-email" id="user-email">Gollap09@gmail.com</div>
-          <div class="user-level">Level 0</div>
-        </div>
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <button class="nav-btn active" data-section="mine">Mine</button>
+        <button class="nav-btn" data-section="upgrade">Upgrade</button>
+        <button class="nav-btn" data-section="team">Team</button>
+        <button class="nav-btn" data-section="withdraw">Withdraw</button>
+    </nav>
 
-        <div class="mining-rate">15.000000 <span class="unit">AVA/H</span></div>
-
-        <div class="cloud-miner">
-          <div class="miner-stage">
-            <div class="platform"></div>
-            <div class="coins" id="coins-anim"></div>
-            <div class="glass"></div>
-          </div>
-        </div>
-
-        <div class="balance-big">
-          <div> <span id="balance-display">0.000000</span> <small>USDT</small> </div>
-          <div class="timer" id="mining-timer">05:59:48</div>
-        </div>
-      </section>
-
-      <!-- Buttons -->
-      <section class="action-grid">
-        <button class="card" id="tasks-btn">Tasks Center</button>
-        <button class="card" id="lucky-btn">Lucky Draw</button>
-        <button class="card" id="mine-btn">Mine</button>
-        <button class="card" id="upgrade-btn">Upgrade</button>
-        <button class="card" id="team-btn">Team</button>
-        <button class="card" id="withdraw-btn">Withdraw</button>
-      </section>
-
-      <!-- Recharge / Deposit area -->
-      <section class="panel deposit-panel">
-        <h3>Recharge / Deposit</h3>
-        <div class="deposit-grid">
-          <label>
-            Select Method
-            <select id="deposit-method">
-              <option value="BEP20-USDT">BEP20-USDT</option>
-              <option value="BEP20-USDC">BEP20-USDC</option>
-              <option value="POLYGON-USDT">POLYGON-USDT</option>
-              <option value="ETH-USDT">ETH-USDT</option>
-              <option value="TRC20-USDT">TRC20-USDT</option>
-              <option value="TON">TON</option>
-              <option value="SOL">SOL</option>
-            </select>
-          </label>
-
-          <label>
-            Amount (USDT)
-            <input type="number" id="deposit-amount" placeholder="e.g. 10" min="1" />
-          </label>
-
-          <div class="payment-addresses">
-            <div class="addr">
-              <div class="label">ETH</div>
-              <div class="val" id="addr-eth">0x53f90e7a0d2834b772890f4f456d51aaed61de43</div>
-              <button class="copy-btn" data-target="addr-eth">Copy</button>
+    <!-- Main Content Sections -->
+    <main class="main-content">
+        <!-- Mine Section -->
+        <section id="mine" class="content-section active">
+            <div class="mining-controls">
+                <div class="mining-status">
+                    <div class="mining-animation" id="miningAnimation">
+                        <!-- Animation will be handled by JS -->
+                    </div>
+                    <div class="mining-buttons">
+                        <button id="startMining" class="gold-btn">Start Mining</button>
+                        <button id="claimRewards" class="gold-btn hidden">Claim Rewards</button>
+                    </div>
+                    <div class="cloud-mining-status">
+                        <span>Cloud Mining: <span id="cloudMiningStatus">Inactive</span></span>
+                        <span class="bonus">+30% Yield</span>
+                    </div>
+                </div>
             </div>
-            <div class="addr">
-              <div class="label">TRX</div>
-              <div class="val" id="addr-trx">TSKPhwUavSrKXXcbWG2TdPzYiBtoTNXP6i</div>
-              <button class="copy-btn" data-target="addr-trx">Copy</button>
+
+            <div class="machines-grid">
+                <!-- Mining machines will be generated by JS -->
             </div>
-            <div class="addr">
-              <div class="label">BNB</div>
-              <div class="val" id="addr-bnb">0x53f90e7a0d2834b772890f4f456d51aaed61de43</div>
-              <button class="copy-btn" data-target="addr-bnb">Copy</button>
+        </section>
+
+        <!-- Upgrade Section -->
+        <section id="upgrade" class="content-section">
+            <div class="upgrade-content">
+                <h3>Membership Upgrade</h3>
+                <div class="current-level">
+                    <span>Current Level: <span id="currentLevel">Basic</span></span>
+                </div>
+                <div class="upgrade-options">
+                    <!-- Upgrade options will be populated by JS -->
+                </div>
             </div>
-            <div class="addr">
-              <div class="label">SOL</div>
-              <div class="val" id="addr-sol">HvHR4LeKdCH5Z2UDKVSDuju8c4ukPAa1CzchHseZ2LKu</div>
-              <button class="copy-btn" data-target="addr-sol">Copy</button>
+        </section>
+
+        <!-- Team Section -->
+        <section id="team" class="content-section">
+            <div class="team-content">
+                <div class="referral-section">
+                    <h3>Your Referral Code</h3>
+                    <div class="referral-code">
+                        <input type="text" id="referralCode" readonly value="SOL12345">
+                        <button class="copy-btn" onclick="copyReferralCode()">Copy</button>
+                    </div>
+                    <p class="referral-info">Get 1 USDT when someone registers with your code</p>
+                    
+                    <div class="share-buttons">
+                        <button class="share-btn" data-platform="facebook">Facebook</button>
+                        <button class="share-btn" data-platform="twitter">Twitter</button>
+                        <button class="share-btn" data-platform="telegram">Telegram</button>
+                        <button class="share-btn" data-platform="whatsapp">WhatsApp</button>
+                    </div>
+                </div>
+
+                <div class="rebate-info">
+                    <h3>Team Rebate Structure</h3>
+                    <div class="rebate-tiers">
+                        <div class="tier">
+                            <span class="tier-level">1st Tier</span>
+                            <span class="tier-percent">10%</span>
+                        </div>
+                        <div class="tier">
+                            <span class="tier-level">2nd Tier</span>
+                            <span class="tier-percent">3%</span>
+                        </div>
+                        <div class="tier">
+                            <span class="tier-level">3rd Tier</span>
+                            <span class="tier-percent">1%</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="addr">
-              <div class="label">TON</div>
-              <div class="val" id="addr-ton">UQCQcNww5CQho7aDQSb4AC_o3TPXeDshkD64L_iY7wknzyaz</div>
-              <button class="copy-btn" data-target="addr-ton">Copy</button>
+        </section>
+
+        <!-- Withdraw Section -->
+        <section id="withdraw" class="content-section">
+            <div class="withdraw-content">
+                <h3>Withdraw Funds</h3>
+                <div class="available-assets">
+                    <span>Currently Available Assets (USDT):</span>
+                    <span id="availableAssets">0.000000 USDT</span>
+                </div>
+
+                <form class="withdraw-form">
+                    <div class="form-group">
+                        <label>Select Mainnet:</label>
+                        <select id="withdrawNetwork" class="network-select">
+                            <option value="BEP20-USDT">BEP20-USDT</option>
+                            <option value="BEP20-USDC">BEP20-USDC</option>
+                            <option value="POLYGON-USDT">POLYGON-USDT</option>
+                            <option value="POLYGON-USDC">POLYGON-USDC</option>
+                            <option value="ETH-USDT">ETH-USDT</option>
+                            <option value="ETH-USDC">ETH-USDC</option>
+                            <option value="TRC20-USDT">TRC20-USDT</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Withdrawal Address:</label>
+                        <input type="text" id="withdrawAddress" placeholder="Enter your wallet address">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Withdrawal Amount:</label>
+                        <div class="amount-input">
+                            <input type="number" id="withdrawAmount" placeholder="0.00">
+                            <button type="button" class="all-btn" onclick="setMaxWithdraw()">All</button>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Minimum withdrawal amount: 1.0000 USDT</span>
+                        <span>Maximum withdrawal amount: 999999.00 USDT</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span>Fee: 0 USDT</span>
+                        <span>Actual arrival: <span id="actualArrival">0.00 USDT</span></span>
+                    </div>
+
+                    <button type="button" class="confirm-btn gold-btn" onclick="processWithdrawal()">Confirm Withdrawal</button>
+                </form>
+
+                <div class="warm-reminder">
+                    <p>Warm reminder: Cash withdrawals can be made at any time. After requesting withdrawal, please wait up to 24 hours for processing. On-chain arrival typically 1-3 minutes once processed.</p>
+                </div>
             </div>
-          </div>
-
-          <div class="deposit-actions">
-            <button id="deposit-confirm">Confirm Deposit</button>
-            <small class="note">Note: After confirming, wait up to 24 hours for manual confirmation.</small>
-          </div>
-        </div>
-      </section>
-
-      <!-- Withdraw panel -->
-      <section class="panel withdraw-panel" id="withdraw-panel">
-        <h3>Withdraw Funds</h3>
-        <div class="withdraw-grid">
-          <div>Currently Available Assets (USDT)</div>
-          <div class="big-balance" id="withdraw-balance">0.000000 USDT</div>
-
-          <label>
-            Select Mainnet
-            <select id="withdraw-method">
-              <option value="BEP20-USDT">BEP20-USDT</option>
-              <option value="POLYGON-USDT">POLYGON-USDT</option>
-              <option value="ETH-USDT">ETH-USDT</option>
-              <option value="TRC20-USDT">TRC20-USDT</option>
-            </select>
-          </label>
-
-          <label>
-            Withdrawal Address
-            <input type="text" id="withdraw-address" placeholder="Paste destination address" />
-          </label>
-
-          <label>
-            Withdrawal Amount
-            <input type="number" id="withdraw-amount" min="50" placeholder="Minimum: 50.0000 USDT" />
-          </label>
-
-          <div class="fee-line">
-            <div>Fee: <span id="withdraw-fee">0 USDT</span></div>
-            <div>Actual arrival: <span id="withdraw-actual">0 USDT</span></div>
-          </div>
-
-          <button id="withdraw-confirm">Confirm Withdraw</button>
-          <small class="note">Withdrawals processed once daily. Then please wait up to 24 hours.</small>
-        </div>
-      </section>
-
-      <!-- Machines / shop -->
-      <section class="panel shop-panel">
-        <h3>Mining Machines</h3>
-        <div class="machines" id="machines-list">
-          <!-- JS will populate machines -->
-        </div>
-      </section>
-
-      <!-- Invite/referral -->
-      <section class="panel invite-panel">
-        <h3>Invite & Referral</h3>
-        <div class="invite-line">
-          <label>My Referral Code
-            <input id="ref-code" value="REF12345" />
-          </label>
-          <button id="copy-ref">Copy</button>
-          <div class="invite-note">Invite someone and get <strong>1 USDT</strong> on successful invite.</div>
-        </div>
-      </section>
+        </section>
     </main>
 
-    <footer class="footer">
-      <div>Chart ID: <span id="chart-id">7417215529</span></div>
-      <div>Telegram API: <small id="tg-token">8401039769:AAErdk3eB81U9PTBUtHpNeM4FdWVpo-0Os0</small></div>
-    </footer>
-  </div>
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="modal hidden">
+        <div class="modal-content gold-glow">
+            <h3>Deposit USDT</h3>
+            <div class="form-group">
+                <label>Select Mainnet:</label>
+                <select id="depositNetwork" class="network-select">
+                    <option value="BEP20-USDT">BEP20-USDT</option>
+                    <option value="BEP20-USDC">BEP20-USDC</option>
+                    <option value="POLYGON-USDT">POLYGON-USDT</option>
+                    <option value="POLYGON-USDC">POLYGON-USDC</option>
+                    <option value="ETH-USDT">ETH-USDT</option>
+                    <option value="ETH-USDC">ETH-USDC</option>
+                    <option value="TRC20-USDT">TRC20-USDT</option>
+                    <option value="TON">TON</option>
+                </select>
+            </div>
 
-  <div id="loading-overlay" class="loading-overlay hidden">
-    <div class="loader">Loading...</div>
-  </div>
+            <div class="form-group">
+                <label>Deposit Amount (Minimum 10 USDT):</label>
+                <input type="number" id="depositAmount" placeholder="10.00" min="10">
+            </div>
 
-  <script src="script.js"></script>
+            <div class="address-display">
+                <label>Deposit Address:</label>
+                <div class="address-container">
+                    <span id="depositAddress">Select network to show address</span>
+                    <button class="copy-btn" onclick="copyDepositAddress()">Copy</button>
+                </div>
+                <div id="qrCode" class="qr-code"></div>
+            </div>
+
+            <div class="screenshot-upload">
+                <label>Upload Payment Screenshot (Optional):</label>
+                <input type="file" id="screenshotUpload" accept="image/*">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="gold-btn" onclick="confirmPayment()">I have paid</button>
+                <button class="confirm-deposit-btn" onclick="confirmDeposit()">Confirm Deposit</button>
+                <button class="cancel-btn" onclick="closeModal('depositModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-animation">
+            <div class="loading-spinner"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message hidden">
+        <div class="message-content gold-glow">
+            <h3>Success!</h3>
+            <p id="successText"></p>
+            <button class="gold-btn" onclick="closeSuccessMessage()">OK</button>
+        </div>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div id="purchaseModal" class="modal hidden">
+        <div class="modal-content gold-glow">
+            <h3>Purchase Mining Machine</h3>
+            <div id="purchaseDetails"></div>
+            <div class="modal-buttons">
+                <button class="gold-btn" onclick="confirmPurchase()">Confirm Purchase</button>
+                <button class="cancel-btn" onclick="closeModal('purchaseModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
